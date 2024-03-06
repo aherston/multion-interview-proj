@@ -1,48 +1,33 @@
-import replicate
-import multion
-import os
+from typing import Union
 
-# get meeting info from photo
+from click import File
 
-image = open("assets/meeting-text2.png", "rb")
+from fastapi import FastAPI, UploadFile
+from pydantic import BaseModel
 
-output = replicate.run(
-    "yorickvp/llava-v1.6-34b:41ecfbfb261e6c1adf3ad896c9066ca98346996d7c4045c5bc944a79d430f174",
-    input={
-        "image": image,
-        "top_p": 1,
-        "prompt": "what is the proposed time and date for the meeting?",
-        "history": [],
-        "max_tokens": 1024,
-        "temperature": 0.2
-    }
-)
+app = FastAPI()
 
-meeting_info = ""
 
-for item in output:
-    # https://replicate.com/yorickvp/llava-v1.6-34b/api#output-schema
-    meeting_info = meeting_info + item
+class Item(BaseModel):
+    name: str
+    price: float
+    is_offer: Union[bool, None] = None
 
-# pass info into multion API
 
-multion_api_key = os.getenv('62259af8ee764b759a94f8614cca2465')
-multion.login(use_api=True, multion_api_key=multion_api_key)
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
-response = multion.create_session({"url": "https://google.com"})
-print(response['message'])
-session_id = response['session_id']
-print("SID: " + session_id)
+@app.post("/uploadfile/")
+async def upload_file(file: UploadFile = File(...)):
+    return {"filename": file.filename}
 
-prompt = "Create a google calendar event." + meeting_info
-url = "https://calendar.google.com"
 
-while True:
-    res = multion.step_session(session_id,{"input":  prompt, "url": url})
- 
-    print(res)
-    if res['status'] == 'DONE':
-        print('task completed')
-        break
+# @app.get("/items/{item_id}")
+# def read_item(item_id: int, q: Union[str, None] = None):
+#     return {"item_id": item_id, "q": q}
 
-multion.close_session(session_id)
+
+# @app.put("/items/{item_id}")
+# def update_item(item_id: int, item: Item):
+#     return {"item_name": item.name, "item_id": item_id}

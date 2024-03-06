@@ -9,7 +9,7 @@ def get_food_type(image: any) -> str:
         input={
             "image": image,
             "caption": False,
-            "question": "is this a picture of a grocery item, a prepared food item, or a list of multiple items? Please respond in only one word: \"grocery,\" \"prepared,\" or \"list\".",
+            "question": "is this a picture of an item you would find at a grocery store, a prepared food item you would find at a restaurant, or a list of multiple items? Please respond in only one word: \"grocery,\" \"prepared,\" or \"list\".",
             "temperature": 1,
             "use_nucleus_sampling": False
         }
@@ -29,7 +29,7 @@ def order_food(image: any, site: str) -> int:
     input={
         "image": image,
         "top_p": 1,
-        "prompt": "I am a waiter, and you want to order this item exactly at a restaurant. Please include only the response you would give to the waiter if I said \"What can I get for you today?\" Include only information about the food on the plate; no other information about the background or the dinnerware. ",
+        "prompt": "I am a waiter, and you want to order this item exactly at a restaurant. Be very descriptive. Please include only the response you would give to the waiter if I said \"What can I get for you today?\" Include only information about the food on the plate; no other information about the background or the dinnerware. ",
         "max_tokens": 1024,
         "temperature": 0.2
     }
@@ -51,7 +51,7 @@ def order_food(image: any, site: str) -> int:
     session_id = response['session_id']
     print("SID: " + session_id)
 
-    prompt = "Please put the following item in my cart on" + site + ": " + caption
+    prompt = "Please put the following item in my cart on " + site + ": " + caption
     url = "https://https.google.com"
 
     while True:
