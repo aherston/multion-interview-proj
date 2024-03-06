@@ -1,4 +1,5 @@
 from food_functions import get_food_type, order_food, order_list
+from fastapi import FastAPI, UploadFile, File
 
 # get meeting info from photo
 

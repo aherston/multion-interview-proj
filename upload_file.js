@@ -3,7 +3,7 @@ const formData = new FormData();
 
 formData.append('file', fileInput.files[0]);
 
-fetch('http://127.0.0.1:8000/items/5?q=somequery', {
+fetch('http://localhost:8000/uploadfile/', {
     method: 'POST',
     body: formData
 })
