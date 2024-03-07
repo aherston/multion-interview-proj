@@ -1,9 +1,8 @@
 from http.client import HTTPException
 from typing import Union
 
-from click import File
-
-from fastapi import FastAPI, UploadFile
+from flask import jsonify
+from fastapi import FastAPI, Form
 from pydantic import BaseModel
 
 from food_functions import get_food_type, order_food, order_list
@@ -21,31 +20,29 @@ class Item(BaseModel):
 def read_root():
     return {"Hello": "World"}
 
-@app.post("/uploadfile/")
-async def upload_file(file: UploadFile = File(...)):
-    if file.content_type not in ["image/jpeg", "image/png"]:
-        raise HTTPException(status_code=400, detail="Invalid file type. Please upload a JPEG or PNG image.")
-    
-    image = await file.read()
-    
-    # image: any = open("assets/peets.jpg", "rb")
+@app.post("/uploadimage/")
+async def upload_image(uri: str = Form(...)):
 
-    output: str = get_food_type(image)
+    print(uri)  
+
+    output: str = get_food_type(uri)
 
     print(output)
+    response: [] = []
 
     if output == "grocery":
-        success: int = order_food(image, "InstaCart")
+        response = order_food(uri, "InstaCart")
     elif output == "prepared":
-        success: int = order_food(image, "DoorDash")
+        response = order_food(uri, "DoorDash")
     elif output == "list":
-        success: int = order_list(image)
+        response = order_list(uri)
     else: 
         print("ERROR")
         exit(1)
 
-    if (success == 0):
-        print("success")
+    if (response != []):
+        print(response)
+        return jsonify(response)
     else:
         print("error ordering food")
 

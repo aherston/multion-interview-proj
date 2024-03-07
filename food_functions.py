@@ -3,7 +3,7 @@ import multion
 import os
 
 # return "grocery" or "prepared" based on an image of food passed in
-def get_food_type(image: any) -> str:
+def get_food_type(image: str) -> str:
     output = replicate.run(
         "andreasjansson/blip-2:f677695e5e89f8b236e52ecd1d3f01beb44c34606419bcc19345e046d8f786f9",
         input={
@@ -23,49 +23,59 @@ def get_food_type(image: any) -> str:
         return output
 
 # order food from [image] from website [site] 
-def order_food(image: any, site: str) -> int:
+def order_food(image: any, site: str) -> []:
+    
     output = replicate.run(
     "yorickvp/llava-13b:a0fdc44e4f2e1f20f2bb4e27846899953ac8e66c5886c5878fa1d6b73ce009e5",
     input={
         "image": image,
         "top_p": 1,
-        "prompt": "I am a waiter, and you want to order this item exactly at a restaurant. Be very descriptive. Please include only the response you would give to the waiter if I said \"What can I get for you today?\" Include only information about the food on the plate; no other information about the background or the dinnerware. ",
+        "prompt": "I am a waiter, and you want to order this item exactly at a restaurant. Be very descriptive. Do not include any items that aren't in the photo. Please include only the response you would give to the waiter if I said \"What can I get for you today?\" Include only information about the food on the plate; no other information about the background or the dinnerware. ",
         "max_tokens": 1024,
         "temperature": 0.2
     }
     )
 
     caption = ""
+    return_str = []
 
     for item in output:
         # https://replicate.com/yorickvp/llava-13b/api#output-schema
         caption = caption + item
 
     print(caption)
+    return_str.append(caption)
 
-    multion_api_key = os.getenv('62259af8ee764b759a94f8614cca2465')
-    multion.login(use_api=True, multion_api_key=multion_api_key)
+    print(1)
 
-    response = multion.create_session({"url": "https://google.com"})
-    print(response['message'])
-    session_id = response['session_id']
-    print("SID: " + session_id)
+    multion.login()
+    multion.set_remote(False)
 
-    prompt = "Please put the following item in my cart on " + site + ": " + caption
-    url = "https://https.google.com"
+    print(2)
+
+    response = multion.browse({
+        "cmd": "Please put the following item in my cart on " + site + ": " + caption,
+        "url": "https://www.google.com",
+        "stream": True,
+    })
+
+    print(3)
 
     while True:
-        res = multion.step_session(session_id,{"input":  prompt, "url": url})
-    
-        print(res)
-        if res['status'] == 'DONE':
-            print('task completed')
-            break
-
-    multion.close_session(session_id)
+        if (response != None):
+            if response['status'] == 'DONE':
+                print("done")
+                print(response)
+                return_str.append(response)
+                print('task completed')
+                return_str.append('task completed')
+                break
+            elif response['status'] == 'CONTINUE':
+                print("continue")
+                print(response)
     
     # on success
-    return 0
+    return return_str
 
 def order_list(image: any):
     output = replicate.run(
