@@ -11,6 +11,7 @@ fetch('http://localhost:8000/uploadimage/', {
 .then(result => {
     console.log('Success:', result);
     document.getElementById('result').textContent = JSON.stringify(result);
+    window.location.href = "http://localhost:8002"
 })
 .catch(error => {
     console.error('Error:', error);

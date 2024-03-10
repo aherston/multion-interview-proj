@@ -1,11 +1,11 @@
 from http.client import HTTPException
 from typing import Union
 
-from flask import jsonify
 from fastapi import FastAPI, Form
 from pydantic import BaseModel
 
-from food_functions import get_food_type, order_food, order_list
+from functions import get_food_type, order_food, order_list, get_is_food, add_to_calendar,\
+    get_one_or_several
 
 app = FastAPI()
 
@@ -23,35 +23,32 @@ def read_root():
 @app.post("/uploadimage/")
 async def upload_image(uri: str = Form(...)):
 
-    print(uri)  
+    print(uri)
 
-    output: str = get_food_type(uri)
+    if (get_is_food(uri)):
+        output: str = get_one_or_several(uri)
 
-    print(output)
-    response: [] = []
+        print(output)
+        response: [] = []
 
-    if output == "grocery":
-        response = order_food(uri, "InstaCart")
-    elif output == "prepared":
-        response = order_food(uri, "DoorDash")
-    elif output == "list":
-        response = order_list(uri)
-    else: 
-        print("ERROR")
-        exit(1)
+        if output == "one":
+            output = get_food_type(uri)
+            if output == "grocery":
+                response = order_food(uri, "InstaCart")
+            elif output == "prepared":
+                response = order_food(uri, "DoorDash")
+        elif output == "several":
+            response = order_list(uri)
+        else: 
+            print("ERROR")
+            exit(1)
+            
+    else:
+        response = add_to_calendar(uri)
 
     if (response != []):
         print(response)
-        return jsonify(response)
+        return response
     else:
-        print("error ordering food")
-
-
-# @app.get("/items/{item_id}")
-# def read_item(item_id: int, q: Union[str, None] = None):
-#     return {"item_id": item_id, "q": q}
-
-
-# @app.put("/items/{item_id}")
-# def update_item(item_id: int, item: Item):
-#     return {"item_name": item.name, "item_id": item_id}
+        print("error: multion did not run")
+        exit(1)
