@@ -42,7 +42,6 @@ async def upload_image(uri: str = Form(...)):
         else: 
             print("ERROR")
             exit(1)
-            
     else:
         response = add_to_calendar(uri)
 

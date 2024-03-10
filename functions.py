@@ -1,6 +1,5 @@
 import replicate
 import multion
-import os
 
 # return true if image includes information about food, and false otherwise
 def get_is_food(image: str) -> bool:
